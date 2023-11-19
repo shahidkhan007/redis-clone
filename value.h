@@ -30,7 +30,7 @@ typedef struct {
 
 // These macros help us tell if a value is of certain type
 
-#define IsOfType(value, type) (value.type == type)
+#define IsOfType(value, t) (value.type == t)
 #define IsInt(value) IsOfType(value, VT_INT)
 #define IsFloat(value) IsOfType(value, VT_FLOAT)
 #define IsStr(value) IsOfType(value, VT_STRING)
