@@ -1,17 +1,45 @@
 #include "vm.h"
+#include "debug.h"
 #include "store.h"
+#include "compiler.h"
+#include "scanner.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void init_vm(VM* vm) {
-    // Right now, there's nothing here but later we will
+    
 }
 
 void free_vm(VM* vm) {
-    // Same here
+    
 }
 
-static void exec_get(VM* vm) {
+static void to_json(char* dest, int opcode, int status, Value* value) {
+    char value_str[1024];
+
+    if (value != NULL) {
+        switch (value->type) {
+            case VT_INT:
+                snprintf(value_str, sizeof(value_str), "%ld", AsInt(*value));
+                break;
+            case VT_FLOAT:
+                snprintf(value_str, sizeof(value_str), "%f", AsFloat(*value));
+                break;
+            case VT_BOOL:
+                snprintf(value_str, sizeof(value_str), "%s", AsBool(*value) == true ? "true" : "false");
+                break;
+            case VT_STRING:
+                snprintf(value_str, sizeof(value_str), "%s", AsStr(*value));
+                break;
+        }
+    }
+    
+    snprintf(dest, 4096, "{\"op\": %d, \"status\": %d, \"value\": \"%s\", \"type\": %d}", opcode, status, value_str, value->type);
+}
+
+static void exec_get(VM* vm, char* output_buffer) {
     #define ReadByte() (*vm->ip++)
     #define ReadConstant() (vm->chunk->constants.values[ReadByte()])
 
@@ -22,14 +50,11 @@ static void exec_get(VM* vm) {
 
     switch (result) {
         case GET_OK: {
-            print_value(value);
-            printf("\n");
+            to_json(output_buffer, 0, GET_OK, &value);
             break;
         }
         case GET_NO_SUCH_KEY: {
-            printf("No such key: ");
-            print_value(key);
-            printf("\n");
+            to_json(output_buffer, 0, GET_NO_SUCH_KEY, &key);
             break;
         }
     }
@@ -39,7 +64,7 @@ static void exec_get(VM* vm) {
 }
 
 
-static void exec_set(VM* vm) {
+static void exec_set(VM* vm, char* output_buffer) {
     #define ReadByte() (*vm->ip++)
     #define ReadConstant() (vm->chunk->constants.values[ReadByte()])
 
@@ -50,16 +75,11 @@ static void exec_set(VM* vm) {
 
     switch (result) {
         case SET_OK: {
-            print_value(key);
-            printf(" => ");
-            print_value(value);
-            printf("\n");
+            to_json(output_buffer, 1, SET_OK, &value);
             break;            
         }
         case SET_DUPLICATE_KEY: {
-            printf("A value for the key '");
-            print_value(key);
-            printf("' already exists.\n");
+            to_json(output_buffer, 1, SET_DUPLICATE_KEY, &key);
             break;
         }
     }
@@ -68,26 +88,24 @@ static void exec_set(VM* vm) {
     #undef ReadConstant
 }
 
-static InterpretResult run(VM* vm) {
+static InterpretResult run(VM* vm, char* output_buffer) {
     #define ReadByte() (*vm->ip++)
 
     for (;;) {
         uint8_t instruction = ReadByte();
-        InterpretResult result;
 
         switch (instruction) {
             case OP_RETURN: {
-                // printf("Exiting gracfully.\n");
                 return INTERPRET_OK;
             }
 
             case OP_GET: {
-                exec_get(vm);
+                exec_get(vm, output_buffer);
                 break;
             }
 
             case OP_SET: {
-                exec_set(vm);
+                exec_set(vm, output_buffer);
                 break;
             }
 
@@ -103,11 +121,22 @@ static InterpretResult run(VM* vm) {
     #undef ReadByte
 }
 
-InterpretResult interpret(VM* vm, Chunk* chunk, Store* store) {
-    vm->chunk = chunk;
+InterpretResult interpret(VM* vm, Store* store, const char* source, char* output_buffer) {
+    Chunk chunk;
+    init_chunk(&chunk);
+
+    if (!compile(source, &chunk)) {
+        return INTERPRET_COMP_ERR;
+    }
+
+    vm->chunk = &chunk;
     vm->ip = vm->chunk->code;
     vm->store = store;
-    return run(vm);
 
+    InterpretResult result = run(vm, output_buffer);
+
+    free_chunk(&chunk);
+    return result;
 }
+
 

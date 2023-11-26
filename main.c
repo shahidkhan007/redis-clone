@@ -1,48 +1,47 @@
-#include "debug.h"
-#include "chunk.h"
 #include "vm.h"
-#include "value.h"
 #include "store.h"
 
-int main() {
-    Chunk chunk;
+#include "scanner.h"
+#include "debug.h"
+
+#include <stdio.h>
+#include <string.h>
+
+void repl() {
     VM vm;
     Store store;
 
-    
     init_vm(&vm);
-    init_chunk(&chunk);
     init_store(&store);
 
-    Value key;
-    key.type = VT_STRING;
-    key.as.str = "name";
+    char output_buffer[4096];
 
-    Value value;
-    value.type = VT_STRING;
-    value.as.str = "shahid";
+    for (;;) {
+        char buf[1024] = {'\0'};
+        printf("> ");
+        fgets(buf, sizeof(buf), stdin);        
+    
+        if (strcmp(buf, "exit") == 0) {
+            break;
+        }
 
-    uint8_t key_idx = write_value_array(&chunk.constants, key);
-    uint8_t value_idx = write_value_array(&chunk.constants, value);
-    uint8_t get_key_idx = write_value_array(&chunk.constants, key);
+        buf[strlen(buf) - 1] = '\0';
 
-    write_chunk(&chunk, OP_SET);
-    write_chunk(&chunk, key_idx);
-    write_chunk(&chunk, value_idx);
+        interpret(&vm, &store, buf, output_buffer);
+        
+        printf("%s\n", output_buffer);
+    }
 
-    write_chunk(&chunk, OP_GET);
-    write_chunk(&chunk, get_key_idx);
+    
 
+}
 
-    write_chunk(&chunk, OP_RETURN);
+int main(int argc, char* argv[]) {
 
-    // disassemble_chunk(&chunk, "Hello, chunk");
+    if (argc == 1) {
+        repl();
+    }
 
-    interpret(&vm, &chunk, &store);
-
-    free_chunk(&chunk);
-    free_vm(&vm);
-    free_store(&store);
 
     return 0;
 }

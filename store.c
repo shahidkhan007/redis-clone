@@ -50,7 +50,7 @@ static Value* search_value(Store* store, Value key) {
 SetResult set_store(Store* store, Value key, Value value) {
     if (search_value(store, key) != NULL) {
         return SET_DUPLICATE_KEY;
-    } 
+    }
 
     write_value_array(&store->keys, key);
     write_value_array(&store->values, value);

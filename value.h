@@ -21,7 +21,7 @@ typedef enum {
 typedef struct {
     ValueType type;
     union {
-        int32_t integer;
+        int64_t integer;
         double flt;
         char* str;
         bool boolean;
@@ -41,10 +41,10 @@ typedef struct {
 
 
 
-#define AsInt(value) (value.as.integer)
-#define AsFloat(value) (value.as.flt)
-#define AsStr(value) (value.as.str)
-#define AsBool(value) (value.as.boolean)
+#define AsInt(value) ((value).as.integer)
+#define AsFloat(value) ((value).as.flt)
+#define AsStr(value) ((value).as.str)
+#define AsBool(value) ((value).as.boolean)
 
 
 typedef struct {
@@ -56,6 +56,6 @@ typedef struct {
 void init_value_array(ValueArray* value_arr);
 void free_value_array(ValueArray* value_arr);
 uint8_t write_value_array(ValueArray* value_arr, Value value);
-void print_value(Value value);
+void print_value(Value value, char* output_buffer);
 
 #endif

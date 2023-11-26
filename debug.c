@@ -1,6 +1,7 @@
 #include "debug.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // chunk is the current Chunk we're working with,
 // and the offset is the location at which we want to disassemble and instruction.
@@ -42,5 +43,30 @@ void disassemble_chunk(Chunk* chunk, const char* name) {
     // I don't specify the increment because the above function does that for us.
     for (int offset = 0; offset < chunk->count;) {
         offset = disassemble_instruction(chunk, offset);
+    }
+}
+
+
+static void keyword(const char* name) {
+    printf("%s", name);
+}
+
+static void literal(const char* type, const char* start, int length) {
+    printf("%s ", type);
+    for (int i = 0; i < length; i++) {
+        printf("%c", *(start + i));
+    }
+}
+
+void print_token(Token token) {
+    switch (token.type) {
+        case TOKEN_EOF: return keyword("EOF");
+        case TOKEN_GET: return keyword("GET");
+        case TOKEN_SET: return keyword("SET");
+        case TOKEN_TRUE: return literal("Bool", token.start, token.length);
+        case TOKEN_FALSE: return literal("Bool", token.start, token.length);
+        case TOKEN_FLOAT: return literal("Float", token.start, token.length);
+        case TOKEN_INT: return literal("Int", token.start, token.length);
+        case TOKEN_STR: return literal("String", token.start, token.length);
     }
 }
