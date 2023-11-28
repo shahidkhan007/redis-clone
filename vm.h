@@ -11,6 +11,11 @@ typedef enum {
     INTERPRET_RUNTIME_ERR
 } InterpretResult;
 
+typedef enum {
+    OPERATION_GET,
+    OPERATION_SET
+} Operation;
+
 typedef struct {
     uint8_t* ip;
     Chunk* chunk;
@@ -19,7 +24,7 @@ typedef struct {
 
 void init_vm(VM* vm);
 void free_vm(VM* vm);
-InterpretResult interpret(VM* vm, Store* store, const char* source, char* output_buffer);
+InterpretResult interpret(VM* vm, const char* source, char* output_buffer);
 
 // void start();
 

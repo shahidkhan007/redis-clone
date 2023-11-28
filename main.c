@@ -1,20 +1,14 @@
-#include "vm.h"
-#include "store.h"
-
-#include "scanner.h"
-#include "debug.h"
+#include "redis.h"
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 void repl() {
-    VM vm;
-    Store store;
+    init_redis();
 
-    init_vm(&vm);
-    init_store(&store);
-
-    char output_buffer[4096];
+    int id = create_instance();
+    char* output_buffer = calloc(sizeof(char), 4096);
 
     for (;;) {
         char buf[1024] = {'\0'};
@@ -27,12 +21,13 @@ void repl() {
 
         buf[strlen(buf) - 1] = '\0';
 
-        interpret(&vm, &store, buf, output_buffer);
+        
+        output_buffer = query(id, buf);
         
         printf("%s\n", output_buffer);
     }
 
-    
+    free(output_buffer);
 
 }
 

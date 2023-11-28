@@ -6,13 +6,22 @@
 #include "store.h"
 
 
-VM vm;
-Store store;
+typedef struct {
+    int count;
+    int capacity;
+    Store** stores;
+    VM** vms;
+    char** buffers;
+} Redis;
 
-char output_buffer[4096];
 
-void create_redis();
-char* query(char* query);
 
+
+void init_redis();
+int create_instance();
+void free_instance(int id);
+char* query(int id, char* query);
+
+Redis main_redis;
 
 #endif

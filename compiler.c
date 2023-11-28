@@ -78,8 +78,7 @@ static uint8_t write_constant(Token token, Chunk* chunk) {
             break;
         }
         case TOKEN_STR: {
-            char lexeme[512];
-            // char* lexeme = (char*)calloc(sizeof(char), token.length);
+            char* lexeme = (char*)calloc(sizeof(char), 512);
             strncpy(lexeme, token.start + 1, token.length - 2);
 
             v.type = VT_STRING;
@@ -96,7 +95,9 @@ static uint8_t write_constant(Token token, Chunk* chunk) {
         }
     }
 
-    return write_value_array(&chunk->constants, v);
+    uint8_t idx = write_value_array(&chunk->constants, v);
+
+    return idx;
 }
 
 static void get(Compiler* compiler, Scanner* scanner) {

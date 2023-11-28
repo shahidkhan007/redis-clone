@@ -5,6 +5,7 @@ gcc -c value.c -o build/value.o &&
 gcc -c store.c -o build/store.o &&
 gcc -c scanner.c -o build/scanner.o &&
 gcc -c compiler.c -o build/compiler.o &&
+gcc -c redis.c -o build/redis.o &&
 gcc -c main.c -o  build/main.o  &&
 gcc build/debug.o \
     build/chunk.o \
@@ -13,5 +14,6 @@ gcc build/debug.o \
     build/store.o \
     build/scanner.o \
     build/compiler.o \
+    build/redis.o \
     build/main.o \
     -o redis

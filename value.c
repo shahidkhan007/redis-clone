@@ -27,10 +27,10 @@ uint8_t write_value_array(ValueArray* value_arr, Value value) {
         int new_capacity = value_arr->capacity < 8 ? 8 : value_arr->capacity * 2;
         value_arr->values = (Value*)realloc(value_arr->values, sizeof(Value) * new_capacity);
         value_arr->capacity = new_capacity;
-    }
+    } 
 
     if (IsStr(value)) {
-        char* mem = (char*)calloc(sizeof(char), strlen(AsStr(value)));
+        char* mem = (char*)calloc(sizeof(char), strlen(AsStr(value)) + 1);
         strncpy(mem, AsStr(value), strlen(AsStr(value)));
         value.as.str = mem;
     }

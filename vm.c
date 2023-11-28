@@ -50,11 +50,11 @@ static void exec_get(VM* vm, char* output_buffer) {
 
     switch (result) {
         case GET_OK: {
-            to_json(output_buffer, 0, GET_OK, &value);
+            to_json(output_buffer, OPERATION_GET, GET_OK, &value);
             break;
         }
         case GET_NO_SUCH_KEY: {
-            to_json(output_buffer, 0, GET_NO_SUCH_KEY, &key);
+            to_json(output_buffer, OPERATION_GET, GET_NO_SUCH_KEY, &key);
             break;
         }
     }
@@ -75,11 +75,11 @@ static void exec_set(VM* vm, char* output_buffer) {
 
     switch (result) {
         case SET_OK: {
-            to_json(output_buffer, 1, SET_OK, &value);
+            to_json(output_buffer, OPERATION_SET, SET_OK, &value);
             break;            
         }
         case SET_DUPLICATE_KEY: {
-            to_json(output_buffer, 1, SET_DUPLICATE_KEY, &key);
+            to_json(output_buffer, OPERATION_SET, SET_DUPLICATE_KEY, &key);
             break;
         }
     }
@@ -121,7 +121,7 @@ static InterpretResult run(VM* vm, char* output_buffer) {
     #undef ReadByte
 }
 
-InterpretResult interpret(VM* vm, Store* store, const char* source, char* output_buffer) {
+InterpretResult interpret(VM* vm, const char* source, char* output_buffer) {
     Chunk chunk;
     init_chunk(&chunk);
 
@@ -131,7 +131,6 @@ InterpretResult interpret(VM* vm, Store* store, const char* source, char* output
 
     vm->chunk = &chunk;
     vm->ip = vm->chunk->code;
-    vm->store = store;
 
     InterpretResult result = run(vm, output_buffer);
 

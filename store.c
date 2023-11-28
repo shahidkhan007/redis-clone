@@ -60,7 +60,7 @@ SetResult set_store(Store* store, Value key, Value value) {
 
 GetResult get_store(Store* store, Value* dest, Value key) {
     Value* result = search_value(store, key);
-    
+        
     if (result == NULL) {
         return GET_NO_SUCH_KEY;
     }
